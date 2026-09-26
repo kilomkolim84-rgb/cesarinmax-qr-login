@@ -15,78 +15,48 @@ import com.journeyapps.barcodescanner.ScanOptions
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var tvEstado: TextView
     private lateinit var btnEscanear: Button
-    private var codigoEscaneado: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         tvEstado = findViewById(R.id.tvEstado)
         btnEscanear = findViewById(R.id.btnEscanear)
 
-        if (!estaEnRedCorrecta()) {
-            tvEstado.text = "⚠️ Conéctate a la red CESARINMAX"
+        tvEstado.text = "✅ App abierta"
+        btnEscanear.setOnClickListener { pedirCamara() }
+    }
+
+    private fun pedirCamara() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED) {
+            escanear()
         } else {
-            tvEstado.text = "✅ Conectado — Listo para escanear"
-        }
-
-        btnEscanear.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-                escanearQR()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this, arrayOf(Manifest.permission.CAMERA), 1001
-                )
-            }
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 100)
         }
     }
 
-    private fun estaEnRedCorrecta(): Boolean {
-        return try {
-            val wifi = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
-            val ip = wifi.connectionInfo.ipAddress
-            if (ip == 0) return false
-            val ipStr = String.format(
-                Locale.getDefault(),
-                "%d.%d.%d.%d",
-                ip and 0xFF, ip shr 8 and 0xFF, ip shr 16 and 0xFF, ip shr 24 and 0xFF
-            )
-            ipStr.startsWith("172.16.1.")
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    private fun escanearQR() {
-        val opciones = ScanOptions()
+    private fun escanear() {
+        val opt = ScanOptions()
             .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-            .setPrompt("📸 Escanea el código")
+            .setPrompt("📸 Escanea QR")
             .setBeepEnabled(true)
-        escanearLauncher.launch(opciones)
+        escaner.launch(opt)
     }
 
-    private val escanearLauncher = registerForActivityResult(ScanContract()) { resultado ->
-        if (resultado.contents != null) {
-            codigoEscaneado = resultado.contents
-            tvEstado.text = "✅ Código: $codigoEscaneado"
-            Toast.makeText(this, "Leído: $codigoEscaneado", Toast.LENGTH_LONG).show()
+    private val escaner = registerForActivityResult(ScanContract()) { res ->
+        if (res.contents != null) {
+            tvEstado.text = "✅ Código: ${res.contents}"
         } else {
-            tvEstado.text = "❌ Escaneo cancelado"
+            tvEstado.text = "❌ Cancelado"
         }
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+        c: Int, p: Array<out String>, g: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1001 && grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            escanearQR()
-        } else {
-            tvEstado.text = "❌ Se necesita permiso de cámara"
-        }
+        super.onRequestPermissionsResult(c, p, g)
+        if (c == 100 && g.firstOrNull() == PackageManager.PERMISSION_GRANTED) escanear()
     }
 }
