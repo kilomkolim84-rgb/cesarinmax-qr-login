@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="#000"
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp">
@@ -10,29 +10,19 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="📸 ESCANEAR TICKET"
-        android:textColor="#FFFFFF"
-        android:textSize="22sp"
+        android:text="CESARINMAX"
+        android:textColor="#FFF"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:layout_marginBottom="30dp"/>
-
-    <TextView
-        android:id="@+id/tvCodigo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Esperando código..."
-        android:textColor="#00FF88"
-        android:textSize="18sp"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="40dp"/>
 
     <TextView
         android:id="@+id/tvEstado"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Conéctate a la red CESARINMAX"
-        android:textColor="#FFCC00"
-        android:textSize="16sp"
-        android:gravity="center"
+        android:text="Cargando..."
+        android:textColor="#0F0"
+        android:textSize="18sp"
         android:layout_marginBottom="40dp"/>
 
     <Button
@@ -41,10 +31,7 @@
         android:layout_height="70dp"
         android:text="CONECTAR"
         android:background="#D32F2F"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        android:enabled="false"/>
+        android:textColor="#FFF"
+        android:textSize="20sp"/>
 
 </LinearLayout>
