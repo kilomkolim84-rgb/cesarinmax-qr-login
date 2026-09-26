@@ -3,7 +3,7 @@ on:
   push:
     branches: [ main ]
 jobs:
-  compilar:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,13 +14,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           
-      - name: Permisos Gradle
-        run: chmod +x gradlew
+      - name: Crear archivos Gradle
+        run: |
+          mkdir -p gradle/wrapper
+          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
+          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
+          echo "networkTimeout=10000" >> gradle/wrapper/gradle-wrapper.properties
+          
+      - name: Descargar y dar permiso
+        run: |
+          wget -O gradlew https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradle/wrapper/gradlew
+          chmod +x gradlew
           
       - name: Compilar APK
         run: ./gradlew assembleDebug
         
-      - name: Descargar APK
+      - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: CesarinMax-QR
