@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.cesarinmax.qrlogin'   // ✅ IGUAL A TU RUTA
+    namespace 'com.cesarinmax.qrlogin'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.cesarinmax.qrlogin"  // ✅ IGUAL
+        applicationId "com.cesarinmax.qrlogin"
         minSdk 21
         targetSdk 34
         versionCode 1
@@ -20,10 +20,12 @@ android {
             minifyEnabled false
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -32,6 +34,4 @@ android {
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-}
-
 }
