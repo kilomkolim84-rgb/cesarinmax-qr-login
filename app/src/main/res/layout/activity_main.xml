@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="#000"
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp">
@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CESARINMAX QR"
+        android:text="CESARINMAX"
         android:textColor="#FFCC00"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cargando..."
-        android:textColor="#00FF00"
+        android:textColor="#0F0"
         android:textSize="18sp"
         android:layout_marginBottom="40dp"/>
 
@@ -31,7 +31,7 @@
         android:layout_height="70dp"
         android:text="ESCANEAR QR"
         android:background="#D32F2F"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFF"
         android:textSize="20sp"/>
 
 </LinearLayout>
