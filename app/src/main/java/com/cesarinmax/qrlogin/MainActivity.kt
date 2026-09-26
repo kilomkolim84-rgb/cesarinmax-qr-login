@@ -1,4 +1,4 @@
-package com.cesarinmax.app
+package com.cesarinmax.qrlogin   // ✅ TU RUTA, NO LA TOQUES
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -27,10 +27,10 @@ import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
-    // CONFIGURACIÓN — AJUSTA AQUÍ SI CAMBIAS LA IP
+    // TUS DATOS — AQUÍ SÍ PONES LOS TUYOS
     private val MIKROTIK_IP = "172.16.1.1"
-    private val MIKROTIK_USER = "tu_usuario"       // ← PONES TU USUARIO DE MIKROTIK
-    private val MIKROTIK_PASS = "tu_contraseña"    // ← PONES TU CONTRASEÑA DE MIKROTIK
+    private val MIKROTIK_USER = "tu_usuario"       // ← TU USUARIO
+    private val MIKROTIK_PASS = "tu_contraseña"    // ← TU CONTRASEÑA
     private val PUERTO_WEB = 80
 
     private lateinit var tvCodigo: TextView
@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvEstado: TextView
     private var codigoEscaneado: String? = null
     private var esValido = false
-    private var reproductor: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +50,10 @@ class MainActivity : AppCompatActivity() {
         btnConectar.isEnabled = false
         btnConectar.alpha = 0.5f
 
-        // Verificar si está en la red correcta
         if (!estaEnRedCorrecta()) {
             tvEstado.text = "⚠️ Conéctate a la red CESARINMAX"
             tvEstado.setTextColor(0xFFFF6600.toInt())
         } else {
-            // Pedir permiso de cámara y escanear
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED
             ) {
@@ -79,7 +76,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // VERIFICAR RED 172.16.1.x
     private fun estaEnRedCorrecta(): Boolean {
         val wifiMgr = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val ip = wifiMgr.connectionInfo.ipAddress
@@ -93,7 +89,6 @@ class MainActivity : AppCompatActivity() {
         return ipStr.startsWith("172.16.1.")
     }
 
-    // ESCANEAR QR — SIN INTERNET, DIRECTO DE CÁMARA
     private fun escanearQR() {
         val opciones = ScanOptions()
             .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
@@ -110,15 +105,12 @@ class MainActivity : AppCompatActivity() {
             tvCodigo.text = "Código: $codigoEscaneado"
             tvEstado.text = "✅ Código leído, verificando..."
             tvEstado.setTextColor(0xFF4CAF50.toInt())
-
-            // Verificar si existe en MikroTik
             verificarEnMikrotik(codigoEscaneado!!)
         } else {
             tvEstado.text = "❌ Escaneo cancelado"
         }
     }
 
-    // VERIFICAR SI EL TICKET EXISTE Y NO ESTÁ USADO
     private fun verificarEnMikrotik(codigo: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -142,8 +134,8 @@ class MainActivity : AppCompatActivity() {
 
                 val texto = respuesta.toString()
                 val existe = texto.contains("\"name\":\"$codigo\"", ignoreCase = true)
-                val estaActivo = !texto.contains("\"name\":\"$codigo\"", ignoreCase = true) ||
-                                 !texto.contains("\"disabled\":true".replace("ticket", codigo), ignoreCase = true)
+                val estaActivo = existe && !texto.contains("\"name\":\"$codigo\"", ignoreCase = true) ||
+                                 !texto.contains("\"disabled\":true", ignoreCase = true)
 
                 withContext(Dispatchers.Main) {
                     if (existe && estaActivo) {
@@ -151,7 +143,6 @@ class MainActivity : AppCompatActivity() {
                         btnConectar.isEnabled = true
                         btnConectar.alpha = 1.0f
                         tvEstado.text = "✅ Ticket válido → Toca CONECTAR"
-                        reproducirAudio()
                     } else if (existe && !estaActivo) {
                         esValido = false
                         btnConectar.isEnabled = false
@@ -173,7 +164,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ACTIVAR EL TICKET EN MIKROTIK
     private fun activarTicketEnMikrotik(codigo: String) {
         tvEstado.text = "🔄 Activando acceso..."
         btnConectar.isEnabled = false
@@ -196,7 +186,6 @@ class MainActivity : AppCompatActivity() {
                     if (codigoRespuesta in 200..299) {
                         tvEstado.text = "🎉 ¡BIENVENIDO! Conexión lista ✅"
                         tvEstado.setTextColor(0xFF4CAF50.toInt())
-                        reproducirBienvenida()
                     } else {
                         tvEstado.text = "❌ Error al activar: $codigoRespuesta"
                         btnConectar.isEnabled = true
@@ -211,18 +200,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // AUDIO DE BIENVENIDA
-    private fun reproducirBienvenida() {
-        reproductor = MediaPlayer.create(this, Uri.parse("android.resource://$packageName/raw/bienvenido"))
-        reproductor?.start()
-    }
-
-    private fun reproducirAudio() {
-        // Sonido corto al leer el código
-        reproductor = MediaPlayer.create(this, android.media.R.raw.sys_download_done)
-        reproductor?.start()
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
@@ -232,10 +209,5 @@ class MainActivity : AppCompatActivity() {
         } else {
             tvEstado.text = "⚠️ Se necesita permiso de cámara"
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        reproductor?.release()
     }
 }
