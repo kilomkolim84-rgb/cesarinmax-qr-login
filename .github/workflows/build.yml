@@ -14,24 +14,22 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           
-      - name: Descargar Gradle 8.2
+      - name: Descargar Gradle
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip
           unzip -q gradle-8.2-bin.zip
-          echo "GRADLE_HOME=$PWD/gradle-8.2" >> $GITHUB_ENV
           
-      - name: Crear archivos
+      - name: Crear wrapper
         run: |
           mkdir -p gradle/wrapper
-          cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
-distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
-EOF
-          cat > gradlew << 'SH'
-#!/bin/sh
-exec "$GRADLE_HOME/bin/gradle" "$@"
-SH
+          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
+          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
+          
+      - name: Crear gradlew
+        run: |
+          echo '#!/bin/sh' > gradlew
+          echo 'exec ./gradle-8.2/bin/gradle "$@"' >> gradlew
           chmod +x gradlew
           
       - name: Compilar
