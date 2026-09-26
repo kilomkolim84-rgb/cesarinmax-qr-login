@@ -14,13 +14,35 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           
-      - name: Instalar Gradle
-        run: sudo apt update && sudo apt install -y gradle
+      - name: Descargar Gradle 8.2 oficial
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip
+          unzip -q gradle-8.2-bin.zip
+          echo "GRADLE_HOME=$PWD/gradle-8.2" >> $GITHUB_ENV
+          
+      - name: Crear wrapper
+        run: |
+          mkdir -p gradle/wrapper
+          cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
+networkTimeout=10000
+EOF
+          
+      - name: Crear gradlew
+        run: |
+          cat > gradlew << 'ENDSCRIPT'
+#!/bin/sh
+set -e
+exec "$GRADLE_HOME/bin/gradle" "$@"
+ENDSCRIPT
+          chmod +x gradlew
+          
+      - name: Compilar APK
+        run: ./gradlew assembleDebug
         
-      - name: Compilar
-        run: gradle assembleDebug
-        
-      - name: Descargar APK
+      - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: CesarinMax-QR
